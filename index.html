@@ -1355,8 +1355,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycby8hvSOspU4lmUVaBNJTY7S
                 nextId: nextId
             }));
         }
-
-        function loadData() {
             function loadData() {
   fetch(API_URL + "?action=getEmployees")
     .then(res => res.json())
