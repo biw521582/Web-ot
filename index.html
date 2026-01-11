@@ -1342,7 +1342,6 @@
         let controlEmployeeId = null;
         let deleteReason = '';
 
-const API_URL = "const API_URL = "https://script.google.com/macros/s/AKfycby8hvSOspU4lmUVaBNJTY7S6DFhI12ZMhGg72HSUSPDlg5hLZnINya2gR_ZnxKpjXfgFA/exec";";
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -1355,30 +1354,14 @@ const API_URL = "const API_URL = "https://script.google.com/macros/s/AKfycby8hvS
                 nextId: nextId
             }));
         }
-            function loadData() {
-  fetch(API_URL + "?action=getEmployees")
-    .then(res => res.json())
-    .then(data => {
-      employees = data.map(emp => ({
-  id: emp.emp_id,
-  code: String(emp.emp_id),   // ✅ เพิ่ม code ให้ตรงกับที่ UI ใช้
-  name: emp.name,
-  department: emp.department === 'PRESS Automotive' ? 'PRESS_AUTO' : 'PRESS_HYD',
-  bus: emp.bus,
-  status: 'P',
-  ot: '17:00',                // ✅ ใช้ ot ไม่ใช่ otTime
-  workType: 'press',
-  remark: '',
-  checked: false,
-  active: emp.active
-}));
 
-      renderTable();
-    })
-    .catch(err => {
-      console.error("โหลดข้อมูลจาก API ไม่สำเร็จ", err);
-      alert("❌ ไม่สามารถเชื่อมต่อ Google Sheet ได้");
-    });
+        function loadData() {
+            const data = localStorage.getItem('ot_employees_data');
+            if (data) {
+                const parsed = JSON.parse(data);
+                employees = parsed.employees || [];
+                nextId = parsed.nextId || 1;
+            }
         }
 
         function getStatusEmoji(status) {
@@ -1909,5 +1892,5 @@ const API_URL = "const API_URL = "https://script.google.com/macros/s/AKfycby8hvS
 
         initializeApp();
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bc357d18088fdb2',t:'MTc2ODEyMzI3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bc383f4d4350b95',t:'MTc2ODEyNTA4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
