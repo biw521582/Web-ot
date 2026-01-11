@@ -1342,6 +1342,7 @@
         let controlEmployeeId = null;
         let deleteReason = '';
 
+const API_URL = "https://script.google.com/macros/s/AKfycby8hvSOspU4lmUVaBNJTY7S6DFhI12ZMhGg72HSUSPDlg5hLZnINya2gR_ZnxKpjXfgFA/exec";
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -1356,12 +1357,26 @@
         }
 
         function loadData() {
-            const data = localStorage.getItem('ot_employees_data');
-            if (data) {
-                const parsed = JSON.parse(data);
-                employees = parsed.employees || [];
-                nextId = parsed.nextId || 1;
-            }
+            function loadData() {
+  fetch(API_URL + "?action=getEmployees")
+    .then(res => res.json())
+    .then(data => {
+      employees = data.map(emp => ({
+        id: emp.emp_id,
+        name: emp.name,
+        department: emp.department,
+        bus: emp.bus,
+        status: 'P',
+        otTime: '',
+        active: emp.active
+      }));
+
+      renderTable();
+    })
+    .catch(err => {
+      console.error("โหลดข้อมูลจาก API ไม่สำเร็จ", err);
+      alert("❌ ไม่สามารถเชื่อมต่อ Google Sheet ได้");
+    });
         }
 
         function getStatusEmoji(status) {
