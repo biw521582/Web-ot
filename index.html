@@ -4,158 +4,235 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ระบบจัดการ OT พนักงาน (Cloud Sync)</title>
+  <title>ระบบจัดการ OT พนักงาน</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&amp;display=swap" rel="stylesheet">
   <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Sarabun', sans-serif; background: linear-gradient(180deg, #310E10, #1a0707); color: #310E10; }
-        .app-container { height: 100vh; display: flex; flex-direction: column; position: relative; max-width: 500px; margin: 0 auto; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        /* ... (ตัดส่วน CSS ออกเพื่อความกระชับ แต่ในไฟล์จริงของคุณจะมีครบ) ... */
-        header { background: #310E10; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .main-content { flex: 1; overflow-y: auto; padding-bottom: 80px; background: #f8f9fa; }
-        .nav-bar { position: absolute; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #eee; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; text-decoration: none; font-size: 12px; }
-        .nav-item.active { color: #310E10; font-weight: 600; }
-        .employee-card { background: white; margin: 10px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; border-left: 5px solid #eee; }
-        .btn-save { background: #310E10; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: 600; margin-top: 10px; cursor: pointer; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #310E10; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* สไตล์อื่นๆ ตามไฟล์ต้นฉบับของคุณ... */
-  </style>
- </head>
- <body>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div id="loading" class="loading-overlay"><div class="spinner"></div></div>
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(180deg, #310E10, #1a0707);
+            color: #310E10;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-    <div class="app-container">
-        <header>
-            <div class="logo-area">
-                <div style="font-size: 18px; font-weight: 800; letter-spacing: 1px;">OT MANAGER</div>
-                <div id="current-dept-label" style="font-size: 11px; opacity: 0.8;">แผนก: PRESS_AUTO</div>
-            </div>
-            <div id="current-date" style="font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;"></div>
-        </header>
+        body {
+            box-sizing: border-box;
+        }
 
-        <main class="main-content" id="app-body">
-            </main>
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
 
-        <nav class="nav-bar">
-            <a href="#" class="nav-item active" onclick="switchPage('ot')"><span>📋</span><div>รายการ OT</div></a>
-            <a href="#" class="nav-item" onclick="switchPage('manage')"><span>👥</span><div>พนักงาน</div></a>
-            <a href="#" class="nav-item" onclick="switchPage('summary')"><span>📊</span><div>สรุปผล</div></a>
-        </nav>
-    </div>
+        header {
+            background: #310E10;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            flex-shrink: 0;
+        }
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycby-RsSdZ3dEhdeJPUZAehJPP8By8YyxstvGBgoZ7XsfokHA-vkPYGF8-jhFZjaSFJclpg/exec';
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px;
+            background: #f8f9fa;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dept-tabs {
+            display: flex;
+            background: white;
+            padding: 10px;
+            overflow-x: auto;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .dept-tab {
+            padding: 8px 16px;
+            background: #f1f1f1;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dept-tab.active {
+            background: #310E10;
+            color: white;
+        }
+
+        .employee-card {
+            background: white;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            border-left: 5px solid #eee;
+            transition: all 0.2s;
+        }
+
+        .employee-card.status-present { border-left-color: #28a745; }
+        .employee-card.status-absent { border-left-color: #dc3545; }
+        .employee-card.status-late { border-left-color: #ffc107; }
+
+        .emp-info {
+            flex: 1;
+        }
+
+        .emp-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .emp-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .badge-present { background: #e8f5e9; color: #2e7d32; }
+        .badge-absent { background: #ffebee; color: #c62828; }
+        .badge-none { background: #f5f5f5; color: #757575; }
+
+        .btn-control {
+            background: #310E10;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            display: flex;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 20;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            gap: 4px;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #310E10;
+            font-weight: 700;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 30px;
+            height: 3px;
+            background: #310E10;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 12px;
+            right: 25%;
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 25px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #555; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 15px; }
         
-        let employees = [];
-        let currentDept = 'PRESS_AUTO';
-
-        // แสดง/ซ่อน Loading
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'flex' : 'none';
-        }
-
-        // ดึงข้อมูลจาก Google Sheets
-        async function loadData() {
-            showLoading(true);
-            try {
-                const response = await fetch(API_URL);
-                employees = await response.json();
-                renderOTPage();
-                updateNavBadge();
-            } catch (error) {
-                console.error("Load Error:", error);
-                showToast("โหลดข้อมูลล้มเหลว", "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // ส่งข้อมูลไปบันทึกที่ Google Sheets (รวมทั้ง Add, Update, Delete)
-        async function syncToAPI(action, data) {
-            showLoading(true);
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action, data })
-                });
-                const result = await response.json();
-                if(result.status === "success") {
-                    showToast("บันทึกสำเร็จ", "success");
-                    await loadData(); // โหลดข้อมูลใหม่เพื่อให้หน้าจอเป็นปัจจุบัน
-                }
-            } catch (error) {
-                console.error("Sync Error:", error);
-                showToast("บันทึกไม่สำเร็จ", "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // แก้ไขฟังก์ชันบันทึกพนักงานใหม่
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const newEmployee = {
-                id: Date.now().toString(), // สร้าง ID แบบง่าย
-                code: formData.get('code'),
-                name: formData.get('name'),
-                bus: formData.get('bus'),
-                dept: formData.get('dept'),
-                status: 'ยังไม่ระบุ',
-                workType: 'ปกติ',
-                ot: 'ไม่มี',
-                remark: '',
-                updatedAt: new Date().toISOString()
-            };
-            
-            await syncToAPI('save', newEmployee);
-            closeModal('add-modal');
-        }
-
-        // แก้ไขฟังก์ชันอัปเดตสถานะ OT
-        async function saveControlChanges() {
-            const emp = employees.find(e => e.id == controlEmployeeId);
-            if (emp) {
-                emp.status = document.getElementById('edit-status').value;
-                emp.workType = document.getElementById('edit-work-type').value;
-                emp.ot = document.getElementById('edit-ot').value;
-                emp.remark = document.getElementById('edit-remark').value;
-                emp.updatedAt = new Date().toISOString();
-                
-                await syncToAPI('save', emp);
-                closeModal('control-modal');
-            }
-        }
-
-        // แก้ไขฟังก์ชันลบพนักงาน
-        async function confirmDelete() {
-            if (editingId) {
-                await syncToAPI('delete', { id: editingId });
-                closeModal('edit-emp-modal');
-            }
-        }
-
-        // ฟังก์ชันช่วยเหลืออื่นๆ (Toast, Render, Date) ให้ใช้โค้ดเดิมของคุณได้เลย
-        function showToast(msg, type) {
-            console.log(`${type.toUpperCase()}: ${msg}`);
-            // โค้ดแสดง Toast เดิมของคุณ...
-        }
-
-        function initializeApp() {
-            document.getElementById('current-date').textContent = new Date().toLocaleDateString('th-TH');
-            loadData(); // เริ่มต้นด้วยการโหลดข้อมูลจาก Cloud
-        }
-
-        window.onload = initializeApp;
-
-        // --- ส่วนที่เหลือของ Logic หน้าจอ (renderOTPage, renderManagePage ฯลฯ) ---
-        // ให้ก๊อปปี้ฟังก์ชันแสดงผลจากไฟล์เดิมของคุณมาใส่ต่อตรงนี้ได้เลยครับ
-    </script>
- </body>
-</html>
+        .btn-save { background: #310E10; color: white; border: none; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; font-weight:
