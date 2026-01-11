@@ -1342,6 +1342,86 @@
         let controlEmployeeId = null;
         let deleteReason = '';
 
+// ================= API CONFIG =================
+const API_URL = "https://script.google.com/macros/s/AKfycby8hvSOspU4lmUVaBNJTY7S6DFhI12ZMhGg72HSUSPDlg5hLZnINya2gR_ZnxKpjXfgFA/exec";
+
+// 👉 Canva = true | GitHub จริง = false
+const USE_MOCK = true;
+
+// ================= MOCK DATA (สำหรับ Canva) =================
+const MOCK_EMPLOYEES = [
+  {
+    id: 1,
+    code: "2660280",
+    name: "วรพล รวงผึ้ง",
+    bus: "กลับเอง",
+    department: "PRESS_AUTO",
+    workType: "press",
+    ot: "17:00",
+    status: "P",
+    remark: "",
+    checked: false
+  },
+  {
+    id: 2,
+    code: "2680258",
+    name: "ธีรวัฒน์ อนุรมณ์",
+    bus: "กลับเอง",
+    department: "PRESS_AUTO",
+    workType: "press",
+    ot: "20:30",
+    status: "P",
+    remark: "",
+    checked: false
+  }
+];
+
+// ================= API HELPER =================
+function fetchFromAPI(params = "") {
+  if (USE_MOCK) {
+    console.warn("🧪 MOCK MODE ENABLED — ไม่เรียก API จริง");
+    return Promise.resolve(MOCK_EMPLOYEES);
+  }
+
+  const url = API_URL + params;
+  console.log("🌐 Calling API:", url);
+
+  return fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error("Network error");
+      return res.json();
+    });
+}
+
+// ================= LOAD EMPLOYEES =================
+function loadEmployeesFromAPI() {
+  fetchFromAPI("?action=getEmployees")
+    .then(data => {
+      console.log("✅ Loaded employees:", data);
+
+      // แปลงรูปแบบข้อมูลให้ตรงกับระบบเดิม
+      employees = data.map((emp, index) => ({
+        id: index + 1,
+        code: String(emp.emp_id || emp.code || ""),
+        name: emp.name || "",
+        bus: emp.bus || "",
+        department: emp.department === "PRESS HYD" ? "PRESS_HYD" : "PRESS_AUTO",
+        workType: "press",
+        ot: "17:00",
+        status: "P",
+        remark: "",
+        checked: false
+      }));
+
+      renderOTPage();
+      updateNavBadge();
+    })
+    .catch(err => {
+      console.error("❌ API Error:", err);
+      showToast("❌ ไม่สามารถเชื่อมต่อ Google Sheet ได้", "error");
+    });
+}
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -1885,10 +1965,16 @@
         }
 
         function initializeApp() {
-            loadData();
-            renderOTPage();
-            updateNavBadge();
-        }
+    if (USE_MOCK) {
+        // Canva preview
+        employees = MOCK_EMPLOYEES;
+        renderOTPage();
+        updateNavBadge();
+    } else {
+        // ใช้งานจริงบน GitHub
+        loadEmployeesFromAPI();
+    }
+}
 
         initializeApp();
     </script>
