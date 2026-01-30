@@ -3,78 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>EMPLOYEE LIST PRO</title>
   <style>
-    :root { --bg: #121212; --panel: #1E1E1E; --border: #333333; --text: #E0E0E0; --primary: #F59E0B; --danger: #DC2626; --info: #38BDF8; }
-    * { touch-action: manipulation; box-sizing: border-box; }
-    body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
-    .header { padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--primary); font-size: 1.2rem; }
-    .nav { display: flex; background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
-    .nav-btn { flex: 1; padding: 15px 5px; border: none; background: none; color: #666; font-size: 11px; cursor: pointer; }
-    .nav-btn.active { color: var(--primary); font-weight: bold; border-bottom: 3px solid var(--primary); }
-    .page { display: none; padding: 15px; }
+    /* --- 🎨 NEW PREMIUM COLOR PALETTE --- */
+    :root {
+      --bg-main: #F4F3EA;      /* ครีม Off-White (พื้นหลังหลัก) */
+      --bg-panel: #FFFFFF;     /* ขาว (พื้นหลังการ์ด) */
+      --bg-header: #333D51;    /* น้ำเงินเข้ม Charcoal (หัวเว็บ) */
+      
+      --text-primary: #333D51; /* น้ำเงินเข้ม (ข้อความหลัก) */
+      --text-secondary: #6C7A89; /* เทาอมฟ้า (ข้อความรอง) */
+      
+      --primary-accent: #D3AC2B; /* ทอง Mustard (ปุ่มหลัก/ไฮไลท์) */
+      --secondary-accent: #A3C6C4; /* เขียวอมเทา Sage (ปุ่มรอง) */
+      
+      --border-color: #CBD0D8; /* เทาอ่อน (เส้นขอบ) */
+      --danger-color: #D9534F; /* แดง (สำหรับแจ้งเตือน) */
+      --slate-dark: #354649;   /* เทาเข้ม Slate (สำหรับพื้นหลังการ์ดฉุกเฉิน) */
+    }
+
+    * { touch-action: manipulation; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-main); color: var(--text-primary); margin: 0; padding-bottom: 90px; }
+    
+    /* Header & Nav - ลุคใหม่ พรีเมียม */
+    .header { padding: 20px; text-align: center; font-weight: 800; background: var(--bg-header); color: #FFF; font-size: 1.3rem; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(51, 61, 81, 0.2); position: sticky; top: 0; z-index: 1001; }
+    
+    .nav { display: flex; background: var(--bg-panel); border-bottom: 1px solid var(--border-color); position: sticky; top: 65px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .nav-btn { flex: 1; padding: 15px 5px; border: none; background: none; color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.3s ease; font-weight: 600; }
+    .nav-btn.active { color: var(--primary-accent); border-bottom: 3px solid var(--primary-accent); background: rgba(211, 172, 43, 0.05); }
+    
+    /* Cards & Layout */
+    .page { display: none; padding: 15px; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .page.active { display: block; }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    td { padding: 10px 5px; border-bottom: 1px solid #252525; }
-    select, input { background: #2A2A2A; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; width: 100%; font-size: 14px; }
-    .btn-main { background: var(--primary); color: #000; border: none; border-radius: 8px; padding: 15px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; }
-    .fab { position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px; background: var(--primary); color: #000; border-radius: 50%; border: none; font-size: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); z-index: 999; }
-    .is-safe { color: #444 !important; text-decoration: line-through; }
-    .stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #333; }
-    .stat-label { color: #888; }
+
+    .card { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-2px); }
+    
+    /* Skeleton Loading (โทนสว่าง) */
+    .shimmer {
+      background: #E0E7E9; /* สีพื้นฐานของ Skeleton */
+      background-image: linear-gradient(90deg, #E0E7E9 0%, #F4F3EA 20%, #E0E7E9 40%, #E0E7E9 100%);
+      background-size: 800px 104px;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      animation-duration: 1.5s;
+      animation-fill-mode: forwards;
+      animation-iteration-count: infinite;
+      animation-name: shimmer;
+      animation-timing-function: linear;
+      border-radius: 4px;
+    }
+    @keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
+    .skeleton-row { height: 50px; width: 100%; margin-bottom: 10px; opacity: 0.7; }
+
+    /* Elements (Forms, Tables, Buttons) */
+    table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 13px; }
+    td { padding: 12px 8px; border-bottom: 1px solid #F0F0F0; background: var(--bg-panel); }
+    tr { box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+
+    select, input { background: #FFF; border: 2px solid var(--border-color); color: var(--text-primary); padding: 14px; border-radius: 12px; width: 100%; font-size: 15px; appearance: none; transition: 0.3s; font-family: inherit; }
+    select:focus, input:focus { border-color: var(--primary-accent); box-shadow: 0 0 0 3px rgba(211, 172, 43, 0.1); }
+    
+    .btn-main { background: var(--primary-accent); color: #333D51; border: none; border-radius: 12px; padding: 16px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; box-shadow: 0 8px 20px rgba(211, 172, 43, 0.3); transition: 0.2s; letter-spacing: 0.5px; }
+    .btn-main:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(211, 172, 43, 0.2); }
+    .btn-secondary { background: var(--secondary-accent); color: #FFF; box-shadow: 0 8px 20px rgba(163, 198, 196, 0.3); }
+    
+    .fab { position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px; background: var(--primary-accent); color: #333D51; border-radius: 50%; border: none; font-size: 30px; box-shadow: 0 8px 25px rgba(211, 172, 43, 0.4); z-index: 999; transition: 0.3s; }
+    .fab:active { transform: rotate(45deg) scale(0.9); }
+
+    .is-safe { color: #AAA !important; text-decoration: line-through; opacity: 0.7; }
+    .small-label { color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; }
+
+    /* สถิติ Dashboard (Premium Look) */
+    .stat-card { text-align: center; background: linear-gradient(135deg, var(--bg-header), var(--slate-dark)); color: #FFF; padding: 30px 15px; border: none; }
+    .stat-val { font-size: 3.5rem; font-weight: 800; margin: 0; color: var(--primary-accent); text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    .stat-label-main { color: var(--secondary-accent); font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; display: block; }
+    .stat-row { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #EEE; }
+    .stat-row span { font-weight: 500; color: var(--text-secondary); }
+    .stat-row b { font-size: 1.1rem; }
+
+    /* หน้าฉุกเฉิน */
+    .fire-card { background: var(--slate-dark); color: #FFF; border: none; border-left: 6px solid var(--danger-color); }
+    .fire-card h3 { color: #FFF; }
+    .fire-card td { background: transparent; border-bottom: 1px solid rgba(255,255,255,0.1); color: #E0E7E9; }
+    .fire-card b { color: var(--primary-accent); }
+
+    /* Modal */
+    .modal-backdrop { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(51, 61, 81, 0.8); z-index:2000; align-items:center; justify-content:center; backdrop-filter: blur(8px); }
   </style>
 </head>
 <body>
 
-<div class="header">EMPLOYEE LIST</div>
+<div class="header">EMPLOYEE LIST PRO</div>
 
 <div class="nav">
   <button id="btn-checkin" class="nav-btn active" onclick="nav('checkin')">🏠 เช็คชื่อ</button>
   <button id="btn-fire" class="nav-btn" onclick="nav('fire')">🚨 ฉุกเฉิน</button>
-  <button id="btn-stats" class="nav-btn" onclick="nav('stats')">📊 สรุปสถิติ</button>
-  <button id="btn-admin" class="nav-btn" onclick="nav('admin')">🔑 แอดมิน</button>
+  <button id="btn-stats" class="nav-btn" onclick="nav('stats')">📊 สรุปยอด</button>
+  <button id="btn-admin" class="nav-btn" onclick="nav('admin')">🔑 ตั้งค่า</button>
 </div>
 
 <button class="fab" onclick="openAddModal()">+</button>
 
 <div id="page-checkin" class="page active">
-  <select id="deptSelect" onchange="loadStaff()" style="border: 2px solid var(--primary); margin-bottom: 15px;"><option value="">-- เลือกแผนก --</option><option value="PRESS HYD">PRESS HYD</option><option value="PRESS Automotive">PRESS Automotive</option></select>
-  <div class="card"><table><tbody id="checkinTable"></tbody></table></div>
-  <button class="btn-main" onclick="saveData()">💾 บันทึกข้อมูลวันนี้</button>
+  <div class="card" style="padding: 10px; background: transparent; box-shadow: none; border: none;">
+    <select id="deptSelect" onchange="loadStaff()" style="font-weight:bold; color: var(--bg-header);">
+      <option value="">-- เลือกแผนก --</option>
+      <option value="PRESS HYD">PRESS HYD</option>
+      <option value="PRESS Automotive">PRESS Automotive</option>
+    </select>
+  </div>
+  <div class="card">
+    <table id="mainTable">
+      <tbody id="checkinTable">
+        </tbody>
+    </table>
+  </div>
+  <button class="btn-main" onclick="saveData()">💾 บันทึกข้อมูล</button>
 </div>
 
 <div id="page-fire" class="page">
-  <div class="card" style="border-left: 5px solid var(--danger);"><h3 style="color:var(--danger); margin-top:0;">🚨 ตรวจยอดคน</h3><table id="fireTable"></table></div>
+  <div class="card fire-card">
+    <h3 style="margin:0 0 5px 0; display: flex; align-items: center;">🚨 จุดรวมพล</h3>
+    <p style="margin:0 0 15px 0; color: var(--secondary-accent); font-size: 0.9rem;">ตรวจสอบรายชื่อพนักงานที่ยังไม่ถึงจุดปลอดภัย</p>
+    <table id="fireTable"></table>
+  </div>
 </div>
 
 <div id="page-stats" class="page">
-  <div class="card" style="text-align: center; border-top: 4px solid var(--primary);">
-    <h2 style="margin: 0; color: var(--primary); font-size: 2.8rem;" id="val-otPercent">0%</h2>
-    <p style="margin: 5px 0 0; color: #888; font-size: 0.8rem;">เปอร์เซ็นต์ทำโอที (เทียบยอดมาทำงาน)</p>
+  <div class="card stat-card">
+    <h1 class="stat-val" id="val-otPercent">--%</h1>
+    <span class="stat-label-main">OT Percentage Today</span>
   </div>
   <div class="card">
-    <div class="stat-row"><span class="stat-label">พนักงานทั้งหมด (ในระบบ)</span> <b id="val-total">0 คน</b></div>
-    <div class="stat-row"><span class="stat-label">มาทำงานวันนี้</span> <b id="val-present" style="color:var(--info);">0 คน</b></div>
-    <div class="stat-row"><span class="stat-label">ขาดงาน / ลา</span> <b id="val-absent" style="color:var(--danger);">0 คน</b></div>
-    <div class="stat-row" style="border:none;"><span class="stat-label">ยอดพนักงานทำโอที</span> <b id="val-ot" style="color:var(--primary);">0 คน</b></div>
+    <div class="stat-row"><span>มาทำงานวันนี้</span> <b id="val-present" style="color:var(--text-primary);">0</b></div>
+    <div class="stat-row"><span>ขาดงาน / ลา</span> <b id="val-absent" style="color:var(--danger-color);">0</b></div>
+    <div class="stat-row" style="border:none;"><span>ทำโอทีทั้งหมด</span> <b id="val-ot" style="color:var(--primary-accent);">0</b></div>
   </div>
-  <button class="btn-main" onclick="exportToCSV()" style="background: var(--info);">📥 ดาวน์โหลดรายงาน (CSV)</button>
+  <button class="btn-main btn-secondary" onclick="exportToCSV()">📥 ดาวน์โหลดรายงาน (CSV)</button>
 </div>
 
 <div id="page-admin" class="page">
-  <div id="adminLock" class="card" style="text-align:center;"><input type="password" id="adminPass" placeholder="รหัสแอดมิน" style="text-align:center;"><button class="btn-main" onclick="unlockAdmin()">เข้าสู่ระบบ</button></div>
+  <div id="adminLock" class="card" style="text-align:center; padding: 30px;">
+    <h3 style="color: var(--bg-header);">Admin Access</h3>
+    <input type="password" id="adminPass" placeholder="Enter Password" style="text-align:center; margin-bottom:15px;">
+    <button class="btn-main" onclick="unlockAdmin()">LOGIN</button>
+  </div>
   <div id="adminPanel" style="display:none;"><div id="approvalQueue"></div></div>
 </div>
 
-<div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; align-items:center; justify-content:center;">
-  <div class="card" style="width:90%; max-width:380px;"><h3 id="modalTitle" style="color:var(--primary); margin-top:0;"></h3><input type="hidden" id="f_oldId"><label>รหัสพนักงาน</label><input type="text" id="f_id"><label>ชื่อ-นามสกุล</label><input type="text" id="f_name"><label>สายรถ</label><input type="text" id="f_bus"><div id="editSection" style="display:none;"><label style="color:var(--danger);">เหตุผล *</label><input type="text" id="f_reason"></div><button class="btn-main" onclick="submitModal()">ยืนยัน</button><button onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:15px;">ยกเลิก</button></div>
+<div id="modal" class="modal-backdrop">
+  <div class="card" style="width:90%; max-width:400px; border-top: 5px solid var(--primary-accent);">
+    <h3 id="modalTitle" style="color:var(--bg-header); margin-top:0;"></h3>
+    <input type="hidden" id="f_oldId">
+    <div style="gap:15px; display:grid;">
+      <input type="text" id="f_id" placeholder="รหัสพนักงาน">
+      <input type="text" id="f_name" placeholder="ชื่อ-นามสกุล">
+      <input type="text" id="f_bus" placeholder="สายรถ">
+      <div id="editSection" style="display:none;"><input type="text" id="f_reason" placeholder="เหตุผลที่แก้ไข *" style="border-color: var(--danger-color);"></div>
+    </div>
+    <button class="btn-main" onclick="submitModal()">ยืนยันข้อมูล</button>
+    <button onclick="closeModal()" style="background:none; border:none; color:var(--text-secondary); width:100%; margin-top:15px; font-size:14px; font-weight: 600;">ปิดหน้าต่าง</button>
+  </div>
 </div>
 
 <script>
-  // 🔗 วาง Web App URL ของพี่ตรงนี้ครับ!
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwXXjuO5jyD4ayJ8SO8jFtCpMLObxmzmhhQV7QhstaOh66V09wyqodxSqAEJuCkVQ7QhA/exec";
+  // 🔗 วาง Web App URL เดิมของพี่ที่นี่ครับ
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby19ouutizF_bRwV6dfFy_Wd_pD38HidkuXD-4rsAC72OXY1xyxR8tu7qlQ5Gs5rADZ6g/exec";
 
   let employees = [];
+
+  function showSkeleton(targetId, rows = 5) {
+    let html = '';
+    for(let i=0; i<rows; i++) html += `<tr><td colspan="3" style="background: transparent; box-shadow: none;"><div class="shimmer skeleton-row"></div></td></tr>`;
+    document.getElementById(targetId).innerHTML = html;
+  }
 
   async function callGoogle(payload) {
     const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -97,61 +202,72 @@
 
   async function loadStaff() {
     const dept = document.getElementById('deptSelect').value;
+    if(!dept) return;
+    showSkeleton('checkinTable', 4);
     const res = await callGoogle({ action: 'getStaff', dept: dept });
-    employees = res; let cHtml = ''; let fHtml = '';
+    employees = res;
+    let cHtml = ''; let fHtml = '';
     res.forEach((emp, i) => {
-      cHtml += `<tr><td onclick="openEditModal(${i})"><b style="color:var(--primary)">${emp[1]}</b><br><small style="color:#666">${emp[0]}</small></td><td><select class="am-s" onchange="hStatus(${i})"><option value="มา">มา</option><option value="ขาด">ขาด</option><option value="ลา">ลา</option></select></td><td><select class="ot-s"><option value="17:00|0">17:00 (ไม่ทำ)</option><option value="20:30|3">20:30 (3)</option><option value="21:30|4">21:30 (4)</option><option value="22:30|5">22:30 (5)</option><option value="23:30|6">23:30 (6)</option><option value="00:00|6.5">00:00 (6.5)</option></select></td></tr>`;
-      fHtml += `<tr><td id="f-row-${i}" style="color:var(--danger); font-weight:bold;">${emp[1]}<br><small style="color:var(--primary)">${emp[2]} | ${emp[0]}</small></td><td width="35" align="right"><input type="checkbox" onchange="document.getElementById('f-row-${i}').classList.toggle('is-safe', this.checked)"></td></tr>`;
+      cHtml += `<tr><td><b style="color:var(--text-primary); font-size:1.05rem;">${emp[1]}</b><br><small class="small-label">${emp[0]}</small></td><td><select class="am-s" onchange="hStatus(${i})"><option value="มา">มา</option><option value="ขาด">ขาด</option><option value="ลา">ลา</option></select></td><td><select class="ot-s"><option value="17:00|0">17:00</option><option value="20:30|3">20:30</option><option value="21:30|4">21:30</option><option value="22:30|5">22:30</option><option value="23:30|6">23:30</option><option value="00:00|6.5">00:00</option></select></td></tr>`;
+      fHtml += `<tr><td><b style="font-size:1.1rem;">${emp[1]}</b><br><small style="color:var(--secondary-accent);">${emp[2]} | ${emp[0]}</small></td><td width="35" align="right"><input type="checkbox" style="width:25px; height:25px; accent-color: var(--primary-accent);" onchange="document.getElementById('f-row-${i}').classList.toggle('is-safe', this.checked)"></td></tr>`;
     });
     document.getElementById('checkinTable').innerHTML = cHtml;
     document.getElementById('fireTable').innerHTML = fHtml;
   }
 
   async function updateStats() {
+    document.getElementById('val-otPercent').innerText = "--%";
     const s = await callGoogle({ action: 'getStats' });
     document.getElementById('val-otPercent').innerText = s.otPercent + "%";
-    document.getElementById('val-total').innerText = s.total + " คน";
-    document.getElementById('val-present').innerText = s.present + " คน";
-    document.getElementById('val-absent').innerText = s.absent + " คน";
-    document.getElementById('val-ot').innerText = s.otCount + " คน";
+    document.getElementById('val-present').innerText = s.present;
+    document.getElementById('val-absent').innerText = s.absent;
+    document.getElementById('val-ot').innerText = s.otCount;
   }
 
   async function saveData() {
-    const d = document.getElementById('deptSelect').value; if(!d) return alert("เลือกแผนกก่อน!");
-    const records = []; document.querySelectorAll('#checkinTable tr').forEach((row, i) => {
-      const ot = row.querySelector('.ot-s').value.split('|');
-      records.push({ id: employees[i][0], name: employees[i][1], dept: d, status: row.querySelector('.am-s').value, untilTime: ot[0], otHours: ot[1], note: "" });
+    const d = document.getElementById('deptSelect').value;
+    if(!d) return alert("โปรดเลือกแผนก");
+    const records = [];
+    document.querySelectorAll('#checkinTable tr').forEach((row, i) => {
+      if(row.querySelector('.am-s')) {
+        const ot = row.querySelector('.ot-s').value.split('|');
+        records.push({ id: employees[i][0], name: employees[i][1], dept: d, status: row.querySelector('.am-s').value, untilTime: ot[0], otHours: ot[1] });
+      }
     });
-    const res = await callGoogle({ action: 'saveDaily', records: records });
-    alert(res.success ? "บันทึกเรียบร้อย!" : "ผิดพลาด");
+    const b = document.querySelector('#page-checkin .btn-main');
+    b.innerText = "⏳ กำลังบันทึกข้อมูล..."; b.disabled = true; b.style.opacity = "0.7";
+    await callGoogle({ action: 'saveDaily', records: records });
+    b.innerText = "💾 บันทึกข้อมูล"; b.disabled = false; b.style.opacity = "1";
+    alert("✅ บันทึกเรียบร้อย!");
   }
 
   async function exportToCSV() {
     const data = await callGoogle({ action: 'exportData' });
-    let csv = "\uFEFFวันที่,รหัสพนักงาน,ชื่อ,แผนก,สถานะเช้า,เวลาโอที,ชั่วโมงโอที\n";
-    for(let i=1; i<data.am.length; i++) {
-      let r = data.am[i]; let otMatch = data.ot.find(o => new Date(o[0]).toDateString() === new Date(r[0]).toDateString() && o[1] == r[1]);
-      csv += `${new Date(r[0]).toLocaleDateString('th-TH')},${r[1]},${r[2]},${r[3]},${r[4]},${otMatch?otMatch[5]:"17:00"},${otMatch?otMatch[6]:"0"}\n`;
-    }
+    let csv = "\uFEFFวันที่,รหัสพนักงาน,ชื่อ,แผนก,สถานะ,เวลาโอที,ชม.โอที\n";
+    data.am.forEach((r, i) => {
+      if(i === 0) return;
+      let otMatch = data.ot.find(o => new Date(o[0]).toDateString() === new Date(r[0]).toDateString() && o[1] == r[1]);
+      csv += `${new Date(r[0]).toLocaleDateString('th-TH')},${r[1]},${r[2]},${r[3]},${r[4]},${otMatch?otMatch[5]:'17:00'},${otMatch?otMatch[6]:'0'}\n`;
+    });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Report.csv`; link.click();
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Report_${new Date().toLocaleDateString()}.csv`; link.click();
   }
 
-  function unlockAdmin() { if(document.getElementById('adminPass').value === '521582') { document.getElementById('adminLock').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; refreshQueue(); } else alert('รหัสผิด'); }
+  function unlockAdmin() { if(document.getElementById('adminPass').value === '521582') { document.getElementById('adminLock').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; refreshQueue(); } else alert('รหัสผ่านไม่ถูกต้อง'); }
   async function refreshQueue() { 
     const q = await callGoogle({ action: 'getPending' });
-    let h = ''; q.forEach(r => { h += `<div class="card"><b>ขอแก้:</b> ${r[3]}<br><button class="btn-main" onclick="approve('${r[1]}','Approve',{id:'${r[2]}',name:'${r[3]}',bus:'${r[4]}'})">Approve</button></div>`; });
-    document.getElementById('approvalQueue').innerHTML = h || 'ไม่มีรายการ';
+    let h = ''; q.forEach(r => { h += `<div class="card" style="border-left: 4px solid var(--primary-accent);"><b>ขอแก้ไข:</b> ${r[3]}<br><small class="small-label">${r[5]}</small><br><button class="btn-main" style="padding:10px; font-size:14px; margin-top:10px;" onclick="approve('${r[1]}','Approve',{id:'${r[2]}',name:'${r[3]}',bus:'${r[4]}'})">อนุมัติรายการ</button></div>`; });
+    document.getElementById('approvalQueue').innerHTML = h || '<p style="text-align:center; color:var(--text-secondary);">ไม่มีรายการรออนุมัติ</p>';
   }
-  async function approve(id, action, data) { await callGoogle({ action: 'approveEdit', oldId: id, res: action, newData: data }); alert("ดำเนินการแล้ว"); refreshQueue(); }
+  async function approve(id, action, data) { await callGoogle({ action: 'approveEdit', oldId: id, res: action, newData: data }); alert("ดำเนินการสำเร็จ"); refreshQueue(); }
   function closeModal() { document.getElementById('modal').style.display = 'none'; }
-  function openAddModal() { document.getElementById('modalTitle').innerText = "เพิ่มพนักงาน"; document.getElementById('editSection').style.display = "none"; document.getElementById('modal').style.display = "flex"; }
-  function openEditModal(i) { const e = employees[i]; document.getElementById('f_oldId').value = e[0]; document.getElementById('f_id').value = e[0]; document.getElementById('f_name').value = e[1]; document.getElementById('f_bus').value = e[3]; document.getElementById('modalTitle').innerText = "ขอแก้ข้อมูล"; document.getElementById('editSection').style.display = "block"; document.getElementById('modal').style.display = "flex"; }
+  function openAddModal() { document.getElementById('modalTitle').innerText = "เพิ่มพนักงานใหม่"; document.getElementById('editSection').style.display = "none"; document.getElementById('modal').style.display = "flex"; }
+  function openEditModal(i) { const e = employees[i]; document.getElementById('f_oldId').value = e[0]; document.getElementById('f_id').value = e[0]; document.getElementById('f_name').value = e[1]; document.getElementById('f_bus').value = e[3]; document.getElementById('modalTitle').innerText = "แก้ไขข้อมูลพนักงาน"; document.getElementById('editSection').style.display = "block"; document.getElementById('modal').style.display = "flex"; }
   async function submitModal() {
     const d = { id: document.getElementById('f_id').value, name: document.getElementById('f_name').value, bus: document.getElementById('f_bus').value, dept: document.getElementById('deptSelect').value || "PRESS HYD" };
     if(document.getElementById('editSection').style.display === "none") { await callGoogle({ action: 'addStaff', empData: d }); }
     else { d.oldId = document.getElementById('f_oldId').value; d.reason = document.getElementById('f_reason').value; await callGoogle({ action: 'reqEdit', d: d }); }
-    closeModal(); alert("สำเร็จ"); loadStaff();
+    closeModal(); alert("บันทึกข้อมูลสำเร็จ"); loadStaff();
   }
 </script>
 </body>
